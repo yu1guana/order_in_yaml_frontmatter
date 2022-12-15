@@ -4,6 +4,7 @@ use crate::page::{PageList, SwapDirection};
 use anyhow::Result;
 use clap::{Parser, ValueHint};
 use std::path::PathBuf;
+use yaml_rust::YamlEmitter;
 
 impl Cli {
     pub fn run() -> Result<()> {
@@ -23,6 +24,11 @@ impl Cli {
         for page in page_list.iter() {
             println!("{:?}", page);
         }
+        println!();
+        let mut out_str = String::new();
+        let mut emitter = YamlEmitter::new(&mut out_str);
+        emitter.dump(page_list.first().unwrap().yaml())?;
+        println!("{}", out_str);
         Ok(())
     }
 }

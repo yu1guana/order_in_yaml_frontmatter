@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 use yaml_rust::Yaml;
 
 #[derive(Debug, Getters, MutGetters, Setters)]
-#[getset(get, get_mut, set)]
+#[getset(get = "pub", get_mut, set)]
 pub struct Page {
     path: PathBuf,
     yaml: Yaml,
@@ -46,7 +46,7 @@ impl Page {
         .ok_or_else(|| PageError::NoFrontMatter(path.to_owned()))?;
         let value = match &yaml[key] {
             Yaml::Integer(x) => Some(x.to_owned()),
-            Yaml::BadValue => Option::None,
+            Yaml::BadValue | Yaml::Null => Option::None,
             _ => return Err(PageError::NoIntegerKey(path.to_owned(), key.to_owned())),
         };
         Ok(Self {
