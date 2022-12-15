@@ -1,0 +1,23 @@
+[package]
+name = "order_in_yaml_frontmatter"
+version = "0.1.0"
+edition = "2021"
+publish = false
+default-run = "order_in_yaml_frontmatter"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0"
+clap = {version = "4.0", features = ["derive"]}
+clap_complete = "4.0"
+derive-new = "0.5"
+frontmatter = "0.4"
+getset = "0.1"
+serde = "1.0"
+serde_derive = "1.0"
+termion = "2.0"
+thiserror = "1.0"
+tui = { version = "0.19", default-features = false, features = ['termion'] }
+unicode-width = "0.1"
+yaml-rust = "0.4"

@@ -1,0 +1,9 @@
+[[todos]]
+title = "FrontMatterの変更"
+description = "設定した順番でFrontMatterを書き換える関数を実装する。"
+updated_utc_datetime_rfc3339 = "2022-12-15T13:10:31.042092+00:00"
+
+[[todos]]
+title = "TUIの実装"
+description = "各ファイルに設定する変数の順番をTUIで操作できるようにする。"
+updated_utc_datetime_rfc3339 = "2022-12-15T13:11:26.166241+00:00"
