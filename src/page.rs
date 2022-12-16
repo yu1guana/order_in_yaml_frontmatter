@@ -9,17 +9,38 @@ use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
 use yaml_rust::Yaml;
 
+/// ファイルのFrontMatterに関する情報を保持する
+///
+/// valueの値が先に変更され、別の関数によりyamlに反映させる。
 #[derive(Debug, Getters, MutGetters, Setters)]
-#[getset(get = "pub", get_mut, set)]
+#[getset(get = "pub")]
 pub struct Page {
+    /// ファイル
+    #[getset(get_mut, set)]
     path: PathBuf,
+
+    /// FrontMatter
+    #[getset(get_mut, set)]
     yaml: Yaml,
+
+    /// FrontMatterのkeyの値
+    #[getset(get_mut, set)]
     value: Option<i64>,
 }
 
-#[derive(Debug, Default)]
+/// FrontMatterを持つファイルのリスト
+///
+/// コンストラクタではFrontMatterのkeyで指定された変数の昇順に格納する。
+/// 値を持たない場合は最後に回す。
+/// その後の操作でもvalueの値は常に昇順になるようにする。
+/// 途中の操作ではNoneが途中に挟まっても良い。
+#[derive(Debug, Getters)]
 pub struct PageList {
     page_list: Vec<Page>,
+
+    /// FrontMatterの変数名
+    #[getset(get)]
+    key: String,
 }
 
 pub enum SwapDirection {
@@ -31,8 +52,8 @@ pub enum SwapDirection {
 enum PageError {
     #[error("failed to get front matter: {0}")]
     NoFrontMatter(PathBuf),
-    #[error("failed to get an integer `{1}`: {0}")]
-    NoIntegerKey(PathBuf, String),
+    #[error("failed to get an integer : {0}")]
+    NoIntegerKey(PathBuf),
     #[error(transparent)]
     Other(#[from] anyhow::Error),
 }
@@ -47,13 +68,25 @@ impl Page {
         let value = match &yaml[key] {
             Yaml::Integer(x) => Some(x.to_owned()),
             Yaml::BadValue | Yaml::Null => Option::None,
-            _ => return Err(PageError::NoIntegerKey(path.to_owned(), key.to_owned())),
+            _ => return Err(PageError::NoIntegerKey(path.to_owned())),
         };
         Ok(Self {
             path: path.to_owned(),
             yaml,
             value,
         })
+    }
+    fn substitute_value(&mut self, key: &str) {
+        match &mut self.yaml {
+            Yaml::Hash(hash) => {
+                if let Some(value) = self.value {
+                    hash.insert(Yaml::String(key.to_owned()), Yaml::Integer(value));
+                } else {
+                    hash.remove(&Yaml::String(key.to_owned()));
+                }
+            }
+            _ => panic!(),
+        }
     }
 }
 
@@ -71,17 +104,20 @@ impl DerefMut for PageList {
 
 impl PageList {
     pub fn try_new(key: &str, target_dir: &Path, recursive: bool) -> Result<Self> {
-        let mut page_list = PageList::default().append_page_list(key, target_dir, recursive)?;
+        let page_list = Self {
+            page_list: Vec::new(),
+            key: key.to_owned(),
+        };
+        let mut page_list = page_list.append_page_list(target_dir, recursive)?;
         page_list.sort_and_fix();
         Ok(page_list)
     }
 
     /// ページリストを追加する
     ///
-    /// key: FrontMatterの変数を指定
     /// target_dir: ディレクトリ指定
     /// recursive: ディレクトリを再起的に遡るかどうか
-    fn append_page_list(self, key: &str, target_dir: &Path, recursive: bool) -> Result<Self> {
+    fn append_page_list(self, target_dir: &Path, recursive: bool) -> Result<Self> {
         let mut page_list = self;
         for entry_result in target_dir
             .read_dir()
@@ -92,13 +128,13 @@ impl PageList {
                 && (path.extension() == Some(OsStr::new("html"))
                     || path.extension() == Some(OsStr::new("md")))
             {
-                match Page::try_new(&path, key) {
+                match Page::try_new(&path, &page_list.key) {
                     Ok(page) => page_list.push(page),
                     Err(PageError::NoFrontMatter(_)) => continue,
                     Err(err) => return Err(err.into()),
                 }
             } else if recursive && path.is_dir() {
-                page_list = page_list.append_page_list(key, &path, recursive)?;
+                page_list = page_list.append_page_list(&path, recursive)?;
             }
         }
         Ok(page_list)
@@ -129,7 +165,7 @@ impl PageList {
     }
 
     /// key から値を外す
-    pub fn unset(&mut self, idx: usize) -> Result<()> {
+    pub fn unset_value(&mut self, idx: usize) -> Result<()> {
         if let Some(page) = self.get_mut(idx) {
             if page.value().is_some() {
                 page.set_value(None);
@@ -148,7 +184,7 @@ impl PageList {
     }
 
     /// key に値を入れる
-    pub fn set(&mut self, idx: usize) -> Result<()> {
+    pub fn set_value(&mut self, idx: usize) -> Result<()> {
         let mut pre_value = 0;
         if let Some(page) = self.get(idx) {
             if page.value().is_none() {
@@ -204,5 +240,13 @@ impl PageList {
         }
         self.swap(idx, idx_neighbor);
         Ok(())
+    }
+
+    /// yamlにvalueを反映させる
+    pub fn substitute_value(&mut self) {
+        let key = self.key().clone();
+        for page in self.iter_mut() {
+            page.substitute_value(&key);
+        }
     }
 }

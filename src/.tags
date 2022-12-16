@@ -1,0 +1,50 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_EXCMD	mixed	/number, pattern, mixed, or combineV2/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PATTERN_LENGTH_LIMIT	96	/0 for no limit/
+!_TAG_PROC_CWD	/Users/ishida/myfiles/products/order_in_yaml_frontmatter/src/	//
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	5.9.0	/1f2c0e0/
+Cli	cli.rs	/^impl Cli {$/;"	c
+Cli	cli.rs	/^pub struct Cli {$/;"	s
+Next	page.rs	/^    Next,$/;"	e	enum:SwapDirection
+NoFrontMatter	page.rs	/^    NoFrontMatter(PathBuf),$/;"	e	enum:PageError
+NoIntegerKey	page.rs	/^    NoIntegerKey(PathBuf),$/;"	e	enum:PageError
+Other	page.rs	/^    Other(#[from] anyhow::Error),$/;"	e	enum:PageError
+Page	page.rs	/^impl Page {$/;"	c
+Page	page.rs	/^pub struct Page {$/;"	s
+PageError	page.rs	/^enum PageError {$/;"	g
+PageList	page.rs	/^impl Deref for PageList {$/;"	c
+PageList	page.rs	/^impl DerefMut for PageList {$/;"	c
+PageList	page.rs	/^impl PageList {$/;"	c
+PageList	page.rs	/^pub struct PageList {$/;"	s
+Prev	page.rs	/^    Prev,$/;"	e	enum:SwapDirection
+SwapDirection	page.rs	/^pub enum SwapDirection {$/;"	g
+Target	page.rs	/^    type Target = Vec<Page>;$/;"	t	implementation:PageList
+append_page_list	page.rs	/^    fn append_page_list(self, target_dir: &Path, recursive: bool) -> Result<Self> {$/;"	P	implementation:PageList
+cli	lib.rs	/^pub mod cli;$/;"	n
+deref	page.rs	/^    fn deref(&self) -> &Self::Target {$/;"	P	implementation:PageList
+deref_mut	page.rs	/^    fn deref_mut(&mut self) -> &mut Self::Target {$/;"	P	implementation:PageList
+key	cli.rs	/^    key: String,$/;"	m	struct:Cli
+key	page.rs	/^    key: String,$/;"	m	struct:PageList
+main	main.rs	/^fn main() -> Result<()> {$/;"	f
+page	lib.rs	/^pub mod page;$/;"	n
+page_list	page.rs	/^    page_list: Vec<Page>,$/;"	m	struct:PageList
+path	page.rs	/^    path: PathBuf,$/;"	m	struct:Page
+recursive	cli.rs	/^    recursive: bool,$/;"	m	struct:Cli
+run	cli.rs	/^    pub fn run() -> Result<()> {$/;"	P	implementation:Cli
+set_value	page.rs	/^    pub fn set_value(&mut self, idx: usize) -> Result<()> {$/;"	P	implementation:PageList
+sort_and_fix	page.rs	/^    fn sort_and_fix(&mut self) {$/;"	P	implementation:PageList
+substitute_value	page.rs	/^    fn substitute_value(&mut self, key: &str) {$/;"	P	implementation:Page
+substitute_value	page.rs	/^    pub fn substitute_value(&mut self) {$/;"	P	implementation:PageList
+swap_with_value	page.rs	/^    pub fn swap_with_value(&mut self, idx: usize, swap_direction: SwapDirection) -> Result<()> {$/;"	P	implementation:PageList
+target_dir	cli.rs	/^    target_dir: PathBuf,$/;"	m	struct:Cli
+try_new	page.rs	/^    fn try_new(path: &Path, key: &str) -> Result<Self, PageError> {$/;"	P	implementation:Page
+try_new	page.rs	/^    pub fn try_new(key: &str, target_dir: &Path, recursive: bool) -> Result<Self> {$/;"	P	implementation:PageList
+unset_value	page.rs	/^    pub fn unset_value(&mut self, idx: usize) -> Result<()> {$/;"	P	implementation:PageList
+value	page.rs	/^    value: Option<i64>,$/;"	m	struct:Page
+yaml	page.rs	/^    yaml: Yaml,$/;"	m	struct:Page
