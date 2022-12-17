@@ -10,6 +10,7 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use termion::raw::RawTerminal;
+use termion::screen::{AlternateScreen, IntoAlternateScreen};
 use tui::backend::{Backend, TermionBackend};
 use tui::layout::{Alignment, Constraint, Direction, Layout};
 use tui::terminal::Frame;
@@ -39,9 +40,9 @@ pub struct App {
     previous_status: Status,
 }
 
-impl Tui<TermionBackend<RawTerminal<Stdout>>> {
+impl Tui<TermionBackend<AlternateScreen<RawTerminal<Stdout>>>> {
     pub fn try_new() -> Result<Self> {
-        let stdout = io::stdout().into_raw_mode()?;
+        let stdout = io::stdout().into_raw_mode()?.into_alternate_screen()?;
         let backend = TermionBackend::new(stdout);
         let mut terminal = Terminal::new(backend)?;
         terminal.hide_cursor()?;
@@ -80,16 +81,16 @@ impl App {
 
     pub fn new(page_list: PageList) -> Self {
         let mut guidance = String::new();
-        write!(guidance, "Up [{}] ", Self::UP_STR).unwrap();
-        write!(guidance, "Down [{}] ", Self::DOWN_STR).unwrap();
-        write!(guidance, "Pick [{}]", Self::PICK_STR).unwrap();
-        write!(guidance, "Unpick [{}]", Self::UNPICK_STR).unwrap();
-        write!(guidance, "Include/Exclude [{}]", Self::INCLUDE_TOGGLE_STR).unwrap();
-        write!(guidance, "Quit [{}]", Self::QUIT_STR).unwrap();
-        write!(guidance, "Save [{}]", Self::SAVE_STR).unwrap();
+        write!(guidance, " Up [{}]", Self::UP_STR).unwrap();
+        write!(guidance, " Down [{}]", Self::DOWN_STR).unwrap();
+        write!(guidance, " Pick [{}]", Self::PICK_STR).unwrap();
+        write!(guidance, " Unpick [{}]", Self::UNPICK_STR).unwrap();
+        write!(guidance, " Include/Exclude [{}]", Self::INCLUDE_TOGGLE_STR).unwrap();
+        write!(guidance, " Quit [{}]", Self::QUIT_STR).unwrap();
+        write!(guidance, " Save [{}]", Self::SAVE_STR).unwrap();
         Self {
             page_list,
-            guidance: Default::default(),
+            guidance,
             current_status: Default::default(),
             previous_status: Default::default(),
         }
@@ -156,7 +157,7 @@ impl App {
     fn ask_quit(&mut self, key: Key) {
         match key {
             Key::Char('Y') => self.update_status(Status::Quit),
-            _ => self.update_status(self.current_status),
+            _ => self.update_status(self.previous_status),
         }
     }
 
@@ -165,15 +166,13 @@ impl App {
     }
 
     fn ui_unpicked<B: Backend>(&self, frame: &mut Frame<B>) {
-        let guidance_height = (self.guidance.len() / frame.size().width as usize) as u16;
+        let guidance_height = 1 + (self.guidance.len() / frame.size().width as usize) as u16;
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints(
                 [
-                    Constraint::Percentage(10),
-                    Constraint::Percentage(90),
-                    // Constraint::Length(guidance_height),
-                    // Constraint::Length(frame.size().height - guidance_height),
+                    Constraint::Length(guidance_height),
+                    Constraint::Length(frame.size().height - guidance_height),
                 ]
                 .as_ref(),
             )
@@ -183,7 +182,7 @@ impl App {
             chunks[0],
         );
         frame.render_widget(
-            Paragraph::new("Unimplemented.").block(Block::default()),
+            Paragraph::new("This area is unimplemented.").block(Block::default()),
             chunks[1],
         );
     }
