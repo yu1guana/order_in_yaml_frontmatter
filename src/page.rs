@@ -4,10 +4,15 @@ use anyhow::{bail, Context, Result};
 use getset::{Getters, MutGetters, Setters};
 use std::cmp::Ordering;
 use std::ffi::OsStr;
+use std::fmt::Write as _;
 use std::fs;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
+use tempfile::NamedTempFile;
 use yaml_rust::Yaml;
+use yaml_rust::YamlEmitter;
 
 /// ファイルのFrontMatterに関する情報を保持する
 ///
@@ -26,6 +31,12 @@ pub struct Page {
     /// FrontMatterのkeyの値
     #[getset(get_mut, set)]
     value: Option<i64>,
+
+    /// 元々のFrontMatterのkeyの値
+    value_old: Option<i64>,
+
+    /// FrontMatterのtitleの値
+    title: Option<String>,
 }
 
 /// FrontMatterを持つファイルのリスト
@@ -70,10 +81,17 @@ impl Page {
             Yaml::BadValue | Yaml::Null => Option::None,
             _ => return Err(PageError::NoIntegerKey(path.to_owned())),
         };
+        let title = if let Yaml::String(x) = &yaml["title"] {
+            Some(x.to_owned())
+        } else {
+            None
+        };
         Ok(Self {
             path: path.to_owned(),
             yaml,
             value,
+            value_old: value,
+            title,
         })
     }
     fn substitute_value(&mut self, key: &str) {
@@ -87,6 +105,28 @@ impl Page {
             }
             _ => panic!(),
         }
+    }
+    fn overwrite_frontmatter(&mut self) -> Result<()> {
+        if self.value != self.value_old {
+            let mut new_file_content = String::new();
+            let mut emitter = YamlEmitter::new(&mut new_file_content);
+            emitter.dump(&self.yaml)?;
+            writeln!(new_file_content, "\n---")?;
+            let tempfile = NamedTempFile::new()?;
+            let buf_reader = BufReader::new(File::open(&self.path)?);
+            let mut end_yaml = false;
+            for line_result in buf_reader.lines().skip(1) {
+                let line = line_result?;
+                if end_yaml {
+                    writeln!(new_file_content, "{}", line)?;
+                } else if line == "---" {
+                    end_yaml = true
+                }
+            }
+            fs::write(&tempfile, new_file_content)?;
+            fs::copy(tempfile, &self.path)?;
+        }
+        Ok(())
     }
 }
 
@@ -164,45 +204,37 @@ impl PageList {
         }
     }
 
-    /// key から値を外す
-    pub fn unset_value(&mut self, idx: usize) -> Result<()> {
+    /// valueに値があれば外し、そうでなければ代入する
+    pub fn toggle_value(&mut self, idx: usize) -> Result<()> {
+        let mut pre_value = 0;
+        let unset;
         if let Some(page) = self.get_mut(idx) {
             if page.value().is_some() {
+                unset = true;
                 page.set_value(None);
             } else {
-                return Ok(());
-            }
-        } else {
-            bail!("failed to get {}-th element", idx);
-        }
-        for page in self.iter_mut().skip(idx + 1) {
-            if let Some(value) = page.value() {
-                page.set_value(Some(value - 1));
-            }
-        }
-        Ok(())
-    }
-
-    /// key に値を入れる
-    pub fn set_value(&mut self, idx: usize) -> Result<()> {
-        let mut pre_value = 0;
-        if let Some(page) = self.get(idx) {
-            if page.value().is_none() {
+                unset = false;
                 for pre_page in self.iter().take(idx) {
                     if let Some(x) = pre_page.value() {
                         pre_value = *x;
                     }
                 }
-            } else {
-                return Ok(());
             }
         } else {
             bail!("failed to get {}-th element", idx);
-        };
-        self.get_mut(idx).unwrap().set_value(Some(pre_value + 1));
-        for page in self.iter_mut().skip(idx + 1) {
-            if let Some(value) = page.value() {
-                page.set_value(Some(value + 1));
+        }
+        if unset {
+            for page in self.iter_mut().skip(idx + 1) {
+                if let Some(value) = page.value() {
+                    page.set_value(Some(value - 1));
+                }
+            }
+        } else {
+            self.get_mut(idx).unwrap().set_value(Some(pre_value + 1));
+            for page in self.iter_mut().skip(idx + 1) {
+                if let Some(value) = page.value() {
+                    page.set_value(Some(value + 1));
+                }
             }
         }
         Ok(())
@@ -216,12 +248,12 @@ impl PageList {
             match swap_direction {
                 SwapDirection::Prev => {
                     if idx == 0 {
-                        bail!("failed to previous one");
+                        bail!("failed to get previous one");
                     }
                 }
                 SwapDirection::Next => {
                     if idx == self.len() - 1 {
-                        bail!("failed to next one");
+                        bail!("failed to get next one");
                     }
                 }
             }
@@ -248,5 +280,13 @@ impl PageList {
         for page in self.iter_mut() {
             page.substitute_value(&key);
         }
+    }
+
+    /// Frontmatterを書き換える
+    pub fn overwrite_frontmatter(&mut self) -> Result<()> {
+        for page in self.iter_mut() {
+            page.overwrite_frontmatter()?;
+        }
+        Ok(())
     }
 }

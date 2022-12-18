@@ -1,11 +1,10 @@
 // Copyright (c) 2022 Yuichi Ishida
 
 use crate::app::{App, Tui};
-use crate::page::{PageList, SwapDirection};
+use crate::page::PageList;
 use anyhow::Result;
 use clap::{Parser, ValueHint};
 use std::path::PathBuf;
-use yaml_rust::YamlEmitter;
 
 impl Cli {
     pub fn run() -> Result<()> {
