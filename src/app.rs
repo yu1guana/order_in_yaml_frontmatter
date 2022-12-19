@@ -8,14 +8,12 @@ use std::io;
 use std::io::Stdout;
 use termion::event::Key;
 use termion::input::TermRead;
-use termion::raw::IntoRawMode;
-use termion::raw::RawTerminal;
+use termion::raw::{IntoRawMode, RawTerminal};
 use termion::screen::{AlternateScreen, IntoAlternateScreen};
 use tui::backend::{Backend, TermionBackend};
 use tui::layout::{Alignment, Constraint, Direction, Layout};
 use tui::style::{Modifier, Style};
-use tui::terminal::Frame;
-use tui::terminal::Terminal;
+use tui::terminal::{Frame, Terminal};
 use tui::widgets::{Block, Paragraph, Row, Table, TableState};
 use unicode_width::UnicodeWidthStr;
 

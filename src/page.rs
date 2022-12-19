@@ -11,8 +11,7 @@ use std::io::{BufRead, BufReader};
 use std::ops::{Deref, DerefMut};
 use std::path::{Path, PathBuf};
 use tempfile::NamedTempFile;
-use yaml_rust::Yaml;
-use yaml_rust::YamlEmitter;
+use yaml_rust::{Yaml, YamlEmitter};
 
 /// ファイルのFrontMatterに関する情報を保持する
 ///

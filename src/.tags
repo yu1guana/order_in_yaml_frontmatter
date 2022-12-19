@@ -11,6 +11,7 @@
 !_TAG_PROGRAM_VERSION	5.9.0	/1f2c0e0/
 App	app.rs	/^impl App {$/;"	c
 App	app.rs	/^pub struct App {$/;"	s
+AppArg	bin/make_completion_script.rs	/^struct AppArg {$/;"	s
 AskQuit	app.rs	/^    AskQuit,$/;"	e	enum:Status
 AskSave	app.rs	/^    AskSave,$/;"	e	enum:Status
 Cli	cli.rs	/^impl Cli {$/;"	c
@@ -26,44 +27,61 @@ PageList	page.rs	/^impl Deref for PageList {$/;"	c
 PageList	page.rs	/^impl DerefMut for PageList {$/;"	c
 PageList	page.rs	/^impl PageList {$/;"	c
 PageList	page.rs	/^pub struct PageList {$/;"	s
-PickedSelect	app.rs	/^    PickedSelect,$/;"	e	enum:Status
+Picked	app.rs	/^    Picked,$/;"	e	enum:Status
 Prev	page.rs	/^    Prev,$/;"	e	enum:SwapDirection
 Quit	app.rs	/^    Quit,$/;"	e	enum:Status
 Status	app.rs	/^enum Status {$/;"	g
 SwapDirection	page.rs	/^pub enum SwapDirection {$/;"	g
 Target	page.rs	/^    type Target = Vec<Page>;$/;"	t	implementation:PageList
-Tui	app.rs	/^impl Tui<TermionBackend<RawTerminal<Stdout>>> {$/;"	c
+Tui	app.rs	/^impl Tui<TermionBackend<AlternateScreen<RawTerminal<Stdout>>>> {$/;"	c
 Tui	app.rs	/^pub struct Tui<B: Backend> {$/;"	s
-UnpickedSelect	app.rs	/^    UnpickedSelect,$/;"	e	enum:Status
+Unpicked	app.rs	/^    Unpicked,$/;"	e	enum:Status
 app	lib.rs	/^mod app;$/;"	n
 append_page_list	page.rs	/^    fn append_page_list(self, target_dir: &Path, recursive: bool) -> Result<Self> {$/;"	P	implementation:PageList
+ask_quit	app.rs	/^    fn ask_quit(&mut self, key: Key) {$/;"	P	implementation:App
+ask_save	app.rs	/^    fn ask_save(&mut self, key: Key) -> Result<()> {$/;"	P	implementation:App
 cli	lib.rs	/^pub mod cli;$/;"	n
 current_status	app.rs	/^    current_status: Status,$/;"	m	struct:App
 deref	page.rs	/^    fn deref(&self) -> &Self::Target {$/;"	P	implementation:PageList
 deref_mut	page.rs	/^    fn deref_mut(&mut self) -> &mut Self::Target {$/;"	P	implementation:PageList
 key	cli.rs	/^    key: String,$/;"	m	struct:Cli
 key	page.rs	/^    key: String,$/;"	m	struct:PageList
+main	bin/make_completion_script.rs	/^fn main() -> Result<()> {$/;"	f
 main	main.rs	/^fn main() -> Result<()> {$/;"	f
+new	app.rs	/^    pub fn new(page_list: PageList) -> Self {$/;"	P	implementation:App
+overwrite_frontmatter	page.rs	/^    fn overwrite_frontmatter(&mut self) -> Result<()> {$/;"	P	implementation:Page
+overwrite_frontmatter	page.rs	/^    pub fn overwrite_frontmatter(&mut self) -> Result<()> {$/;"	P	implementation:PageList
 page	lib.rs	/^mod page;$/;"	n
 page_list	app.rs	/^    page_list: PageList,$/;"	m	struct:App
 page_list	page.rs	/^    page_list: Vec<Page>,$/;"	m	struct:PageList
 path	page.rs	/^    path: PathBuf,$/;"	m	struct:Page
+picked	app.rs	/^    fn picked(&mut self, key: Key) -> Result<()> {$/;"	P	implementation:App
+picked_guidance	app.rs	/^    picked_guidance: String,$/;"	m	struct:App
 previous_status	app.rs	/^    previous_status: Status,$/;"	m	struct:App
 recursive	cli.rs	/^    recursive: bool,$/;"	m	struct:Cli
 run	app.rs	/^    pub fn run(&mut self, app: &mut App) -> Result<()> {$/;"	P	implementation:Tui
 run	cli.rs	/^    pub fn run() -> Result<()> {$/;"	P	implementation:Cli
-set_value	page.rs	/^    pub fn set_value(&mut self, idx: usize) -> Result<()> {$/;"	P	implementation:PageList
+selected_idx	app.rs	/^    selected_idx: usize,$/;"	m	struct:App
+shell	bin/make_completion_script.rs	/^    shell: Shell,$/;"	m	struct:AppArg
 sort_and_fix	page.rs	/^    fn sort_and_fix(&mut self) {$/;"	P	implementation:PageList
 substitute_value	page.rs	/^    fn substitute_value(&mut self, key: &str) {$/;"	P	implementation:Page
 substitute_value	page.rs	/^    pub fn substitute_value(&mut self) {$/;"	P	implementation:PageList
 swap_with_value	page.rs	/^    pub fn swap_with_value(&mut self, idx: usize, swap_direction: SwapDirection) -> Result<()> {$/;"	P	implementation:PageList
 target_dir	cli.rs	/^    target_dir: PathBuf,$/;"	m	struct:Cli
 terminal	app.rs	/^    terminal: Terminal<B>,$/;"	m	struct:Tui
+title	page.rs	/^    title: Option<String>,$/;"	m	struct:Page
+toggle_value	page.rs	/^    pub fn toggle_value(&mut self, idx: usize) -> Result<()> {$/;"	P	implementation:PageList
 transition	app.rs	/^    fn transition(&mut self, key: Key) -> Result<()> {$/;"	P	implementation:App
 try_new	app.rs	/^    pub fn try_new() -> Result<Self> {$/;"	P	implementation:Tui
 try_new	page.rs	/^    fn try_new(path: &Path, key: &str) -> Result<Self, PageError> {$/;"	P	implementation:Page
 try_new	page.rs	/^    pub fn try_new(key: &str, target_dir: &Path, recursive: bool) -> Result<Self> {$/;"	P	implementation:PageList
-ui	app.rs	/^fn ui<B: Backend>(frame: &mut Frame<B>, app: &mut App) {$/;"	f
-unset_value	page.rs	/^    pub fn unset_value(&mut self, idx: usize) -> Result<()> {$/;"	P	implementation:PageList
+ui	app.rs	/^    fn ui<B: Backend>(&mut self, frame: &mut Frame<B>) {$/;"	P	implementation:App
+ui_ask_quit	app.rs	/^    fn ui_ask_quit<B: Backend>(&self, frame: &mut Frame<B>) {$/;"	P	implementation:App
+ui_ask_save	app.rs	/^    fn ui_ask_save<B: Backend>(&self, frame: &mut Frame<B>) {$/;"	P	implementation:App
+ui_select	app.rs	/^    fn ui_select<B: Backend>(&self, frame: &mut Frame<B>, picked: bool) {$/;"	P	implementation:App
+unpicked	app.rs	/^    fn unpicked(&mut self, key: Key) -> Result<()> {$/;"	P	implementation:App
+unpicked_guidance	app.rs	/^    unpicked_guidance: String,$/;"	m	struct:App
+update_status	app.rs	/^    fn update_status(&mut self, status: Status) {$/;"	P	implementation:App
 value	page.rs	/^    value: Option<i64>,$/;"	m	struct:Page
+value_old	page.rs	/^    value_old: Option<i64>,$/;"	m	struct:Page
 yaml	page.rs	/^    yaml: Yaml,$/;"	m	struct:Page
