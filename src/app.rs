@@ -1,5 +1,6 @@
 // Copyright (c) 2022 Yuichi Ishida
 
+use crate::key_bind;
 use crate::page::{PageList, SwapDirection};
 use anyhow::Result;
 use std::cmp;
@@ -34,8 +35,6 @@ enum Status {
 
 pub struct App {
     page_list: PageList,
-    picked_guidance: String,
-    unpicked_guidance: String,
     selected_idx: usize,
     current_status: Status,
     previous_status: Status,
@@ -64,44 +63,16 @@ impl Tui<TermionBackend<AlternateScreen<RawTerminal<Stdout>>>> {
 }
 
 impl App {
-    const UP_STR: char = 'i';
-    const DOWN_STR: char = 'k';
-    const PICK_STR: char = 'l';
-    const UNPICK_STR: char = 'j';
-    const INCLUDE_TOGGLE_STR: char = 'x';
-    const QUIT_STR: char = 'q';
-    const SAVE_STR: char = 's';
-
-    const UP_KEY: Key = Key::Char(Self::UP_STR);
-    const DOWN_KEY: Key = Key::Char(Self::DOWN_STR);
-    const PICK_KEY: Key = Key::Char(Self::PICK_STR);
-    const UNPICK_KEY: Key = Key::Char(Self::UNPICK_STR);
-    const INCLUDE_TOGGLE_KEY: Key = Key::Char(Self::INCLUDE_TOGGLE_STR);
-    const QUIT_KEY: Key = Key::Char(Self::QUIT_STR);
-    const SAVE_KEY: Key = Key::Char(Self::SAVE_STR);
+    const UP_KEY: Key = Key::Char(key_bind::UP);
+    const DOWN_KEY: Key = Key::Char(key_bind::DOWN);
+    const PICK_TOGGLE_KEY: Key = Key::Char(key_bind::PICK_TOGGLE);
+    const INCLUDE_TOGGLE_KEY: Key = Key::Char(key_bind::INCLUDE_TOGGLE);
+    const QUIT_KEY: Key = Key::Char(key_bind::QUIT);
+    const SAVE_KEY: Key = Key::Char(key_bind::SAVE);
 
     pub fn new(page_list: PageList) -> Self {
-        let mut unpicked_guidance = String::new();
-        write!(unpicked_guidance, " Up [{}],", Self::UP_STR).unwrap();
-        write!(unpicked_guidance, " Down [{}],", Self::DOWN_STR).unwrap();
-        write!(unpicked_guidance, " Pick [{}],", Self::PICK_STR).unwrap();
-        write!(
-            unpicked_guidance,
-            " Include/Exclude [{}],",
-            Self::INCLUDE_TOGGLE_STR
-        )
-        .unwrap();
-        write!(unpicked_guidance, " Quit [{}],", Self::QUIT_STR).unwrap();
-        write!(unpicked_guidance, " Save [{}]", Self::SAVE_STR).unwrap();
-        let mut picked_guidance = String::new();
-        write!(picked_guidance, " Up [{}],", Self::UP_STR).unwrap();
-        write!(picked_guidance, " Down [{}],", Self::DOWN_STR).unwrap();
-        write!(picked_guidance, " Unpick [{}],", Self::UNPICK_STR).unwrap();
-        write!(picked_guidance, " Quit [{}],", Self::QUIT_STR).unwrap();
         Self {
             page_list,
-            picked_guidance,
-            unpicked_guidance,
             selected_idx: 0,
             current_status: Default::default(),
             previous_status: Default::default(),
@@ -173,7 +144,7 @@ impl App {
             Self::INCLUDE_TOGGLE_KEY => {
                 self.page_list.toggle_value(self.selected_idx)?;
             }
-            Self::PICK_KEY => {
+            Self::PICK_TOGGLE_KEY => {
                 self.update_status(Status::Picked);
             }
             _ => (),
@@ -200,7 +171,7 @@ impl App {
                     self.selected_idx += 1;
                 }
             }
-            Self::UNPICK_KEY => {
+            Self::PICK_TOGGLE_KEY => {
                 self.update_status(Status::Unpicked);
             }
             _ => (),
@@ -228,9 +199,8 @@ impl App {
     }
 
     fn ui_select<B: Backend>(&self, frame: &mut Frame<B>, picked: bool) {
-        let guidance_height = 1
-            + (cmp::max(self.unpicked_guidance.len(), self.picked_guidance.len())
-                / frame.size().width as usize) as u16;
+        let guidance = self.guidance(picked);
+        let guidance_height = 1 + (guidance.len() / frame.size().width as usize) as u16;
         let chunks = Layout::default()
             .direction(Direction::Vertical)
             .constraints(
@@ -242,15 +212,7 @@ impl App {
                 .as_ref(),
             )
             .split(frame.size());
-        frame.render_widget(
-            Paragraph::new(if picked {
-                self.picked_guidance.as_str()
-            } else {
-                self.unpicked_guidance.as_str()
-            })
-            .block(Block::default()),
-            chunks[0],
-        );
+        frame.render_widget(Paragraph::new(guidance).block(Block::default()), chunks[0]);
         let max_file_name_length = self
             .page_list
             .iter()
@@ -352,5 +314,32 @@ impl App {
             .alignment(Alignment::Center)
             .block(Block::default());
         frame.render_widget(opening_msg, chunks[2]);
+    }
+
+    fn guidance(&self, picked: bool) -> String {
+        let mut guidance = String::new();
+        write!(guidance, " Quit [{}]", key_bind::QUIT).unwrap();
+        write!(guidance, ", Up [{}]", key_bind::UP).unwrap();
+        write!(guidance, ", Down [{}]", key_bind::DOWN).unwrap();
+        if picked {
+            write!(guidance, ", Unpick [{}]", key_bind::PICK_TOGGLE).unwrap();
+        } else {
+            write!(guidance, ", Pick [{}]", key_bind::PICK_TOGGLE).unwrap();
+            if self
+                .page_list
+                .get(self.selected_idx)
+                .unwrap()
+                .value()
+                .is_some()
+            {
+                write!(guidance, ", Exclude [{}]", key_bind::INCLUDE_TOGGLE).unwrap();
+            } else {
+                write!(guidance, ", Include [{}]", key_bind::INCLUDE_TOGGLE).unwrap();
+            }
+        }
+        if !picked {
+            write!(guidance, ", Save [{}]", key_bind::SAVE).unwrap();
+        }
+        guidance
     }
 }

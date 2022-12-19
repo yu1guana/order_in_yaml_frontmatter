@@ -2,4 +2,5 @@
 
 mod app;
 pub mod cli;
+mod key_bind;
 mod page;
