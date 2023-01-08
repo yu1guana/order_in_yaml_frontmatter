@@ -1,3 +1,3 @@
-# タブ補完スクリプト
+# Completion scripts
 
-このディレクトリはタブ補完用のスクリプトを格納するためのものである。
+This directory is for storing tab completion scripts.
