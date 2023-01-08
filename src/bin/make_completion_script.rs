@@ -1,4 +1,7 @@
-// Copyright (c) 2022 Yuichi Ishida
+// Copyright (c) 2023 Yuichi Ishida
+//
+// Released under the MIT license.
+// see https://opensource.org/licenses/mit-license.php
 
 use anyhow::Result;
 use clap::{CommandFactory, Parser};
@@ -16,7 +19,6 @@ use std::path::Path;
     about = "Make shellscript to complete arguments."
     )]
 struct AppArg {
-    // #[clap(arg_enum)]
     shell: Shell,
 }
 

@@ -1,4 +1,7 @@
-// Copyright (c) 2022 Yuichi Ishida
+// Copyright (c) 2023 Yuichi Ishida
+//
+// Released under the MIT license.
+// see https://opensource.org/licenses/mit-license.php
 
 use crate::app::{App, Tui};
 use crate::page::PageList;
@@ -17,12 +20,7 @@ impl Cli {
 }
 
 #[derive(Parser)]
-#[clap(
-    name = env!("CARGO_PKG_NAME"),
-    author = env!("CARGO_PKG_AUTHORS"),
-    version = env!("CARGO_PKG_VERSION"),
-    about = "Assign sequential variables in Jekyll frontmatter."
-)]
+#[clap(author, version, about, after_help = concat!("Repository: ", env!("CARGO_PKG_REPOSITORY")))]
 pub struct Cli {
     /// ディレクトリを指定
     #[clap(

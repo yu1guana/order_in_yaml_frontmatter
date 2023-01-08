@@ -44,8 +44,10 @@ cli	lib.rs	/^pub mod cli;$/;"	n
 current_status	app.rs	/^    current_status: Status,$/;"	m	struct:App
 deref	page.rs	/^    fn deref(&self) -> &Self::Target {$/;"	P	implementation:PageList
 deref_mut	page.rs	/^    fn deref_mut(&mut self) -> &mut Self::Target {$/;"	P	implementation:PageList
+guidance	app.rs	/^    fn guidance(&self, picked: bool) -> String {$/;"	P	implementation:App
 key	cli.rs	/^    key: String,$/;"	m	struct:Cli
 key	page.rs	/^    key: String,$/;"	m	struct:PageList
+key_bind	lib.rs	/^mod key_bind;$/;"	n
 main	bin/make_completion_script.rs	/^fn main() -> Result<()> {$/;"	f
 main	main.rs	/^fn main() -> Result<()> {$/;"	f
 new	app.rs	/^    pub fn new(page_list: PageList) -> Self {$/;"	P	implementation:App
@@ -56,7 +58,6 @@ page_list	app.rs	/^    page_list: PageList,$/;"	m	struct:App
 page_list	page.rs	/^    page_list: Vec<Page>,$/;"	m	struct:PageList
 path	page.rs	/^    path: PathBuf,$/;"	m	struct:Page
 picked	app.rs	/^    fn picked(&mut self, key: Key) -> Result<()> {$/;"	P	implementation:App
-picked_guidance	app.rs	/^    picked_guidance: String,$/;"	m	struct:App
 previous_status	app.rs	/^    previous_status: Status,$/;"	m	struct:App
 recursive	cli.rs	/^    recursive: bool,$/;"	m	struct:Cli
 run	app.rs	/^    pub fn run(&mut self, app: &mut App) -> Result<()> {$/;"	P	implementation:Tui
@@ -80,7 +81,6 @@ ui_ask_quit	app.rs	/^    fn ui_ask_quit<B: Backend>(&self, frame: &mut Frame<B>)
 ui_ask_save	app.rs	/^    fn ui_ask_save<B: Backend>(&self, frame: &mut Frame<B>) {$/;"	P	implementation:App
 ui_select	app.rs	/^    fn ui_select<B: Backend>(&self, frame: &mut Frame<B>, picked: bool) {$/;"	P	implementation:App
 unpicked	app.rs	/^    fn unpicked(&mut self, key: Key) -> Result<()> {$/;"	P	implementation:App
-unpicked_guidance	app.rs	/^    unpicked_guidance: String,$/;"	m	struct:App
 update_status	app.rs	/^    fn update_status(&mut self, status: Status) {$/;"	P	implementation:App
 value	page.rs	/^    value: Option<i64>,$/;"	m	struct:Page
 value_old	page.rs	/^    value_old: Option<i64>,$/;"	m	struct:Page

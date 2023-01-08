@@ -1,6 +1,11 @@
 [package]
 name = "order_in_yaml_frontmatter"
+authors = ["Yuichi Ishida <yu1guana@gmail.com>"]
 version = "0.1.0"
+description = "Assign sequential variables for yaml frontmatters"
+repository = "https://github.com/yu1guana/english_vocabulary_test"
+license-file = "LICENSE"
+readme = "README.md"
 edition = "2021"
 publish = false
 default-run = "order_in_yaml_frontmatter"
