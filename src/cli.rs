@@ -22,20 +22,18 @@ impl Cli {
 #[derive(Parser)]
 #[clap(author, version, about, after_help = concat!("Repository: ", env!("CARGO_PKG_REPOSITORY")))]
 pub struct Cli {
-    /// ディレクトリを指定
+    #[clap(long, help = "Variables in frontmatters to assign order")]
+    key: String,
+
     #[clap(
         short = 't',
         long = "target",
         value_hint(ValueHint::FilePath),
-        default_value = "."
+        default_value = ".",
+        help = "Specify a target directory"
     )]
     target_dir: PathBuf,
 
-    /// ディレクトリを再起的に探る
-    #[clap(short, long)]
+    #[clap(short, long, help = "Handles all files under a target directory")]
     recursive: bool,
-
-    /// 順序を割り当てるFronMatterの変数
-    #[clap(long)]
-    key: String,
 }

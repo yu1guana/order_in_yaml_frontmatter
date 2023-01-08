@@ -16,13 +16,15 @@ use std::path::{Path, PathBuf};
 use tempfile::NamedTempFile;
 use yaml_rust::{Yaml, YamlEmitter};
 
-/// ファイルのFrontMatterに関する情報を保持する
+/// Maintains information about the file's Frontmatter.
+/// The value of value is changed first and then reflected in yaml by another function.
 ///
+/// ファイルのFrontMatterに関する情報を保持する。
 /// valueの値が先に変更され、別の関数によりyamlに反映させる。
 #[derive(Debug, Getters, MutGetters, Setters)]
 #[getset(get = "pub")]
 pub struct Page {
-    /// ファイル
+    /// Path of a file
     #[getset(get_mut, set)]
     path: PathBuf,
 
@@ -30,28 +32,33 @@ pub struct Page {
     #[getset(get_mut, set)]
     yaml: Yaml,
 
-    /// FrontMatterのkeyの値
+    /// a new value of key in FrontMatter
     #[getset(get_mut, set)]
     value: Option<i64>,
 
-    /// 元々のFrontMatterのkeyの値
+    /// a old value of key in FrontMatter
     value_old: Option<i64>,
 
-    /// FrontMatterのtitleの値
+    /// title in FrontMatter
     title: Option<String>,
 }
 
-/// FrontMatterを持つファイルのリスト
+/// List of files having FrontMatter.
+/// The constructor stores the variables specified by the key of frontmatter in ascending order.
+/// If it has no value, it should be the last.
+/// The value should always be in ascending order in subsequent operations.
+/// None may be interrupted during operation.
 ///
+/// FrontMatterを持つファイルのリスト。
 /// コンストラクタではFrontMatterのkeyで指定された変数の昇順に格納する。
 /// 値を持たない場合は最後に回す。
-/// その後の操作でもvalueの値は常に昇順になるようにする。
-/// 途中の操作ではNoneが途中に挟まっても良い。
+/// その後の操作でもvalueは常に昇順になるようにする。
+/// 操作中はNoneが途中に挟まっても良い。
 #[derive(Debug, Getters)]
 pub struct PageList {
     page_list: Vec<Page>,
 
-    /// FrontMatterの変数名
+    /// variable name of FrontMatter
     #[getset(get)]
     key: String,
 }
@@ -155,10 +162,7 @@ impl PageList {
         Ok(page_list)
     }
 
-    /// ページリストを追加する
-    ///
-    /// target_dir: ディレクトリ指定
-    /// recursive: ディレクトリを再起的に遡るかどうか
+    /// Add page lists
     fn append_page_list(self, target_dir: &Path, recursive: bool) -> Result<Self> {
         let mut page_list = self;
         for entry_result in target_dir
@@ -182,7 +186,8 @@ impl PageList {
         Ok(page_list)
     }
 
-    /// value の値でソートし、0はじまりの連番をふる。NoneはSomeと比較すると大きい。
+    /// Sort and assign sequential numbers beginning with 0. None is greater than Some.
+    /// ソートして0始まりの連番を割り当てる。NoneはSomeと比較すると大きい。
     fn sort_and_fix(&mut self) {
         self.sort_by(|a, b| {
             if let Some(a_value) = a.value() {
@@ -206,6 +211,7 @@ impl PageList {
         }
     }
 
+    /// Remove the value if it exists, otherwise assign it.
     /// valueに値があれば外し、そうでなければ代入する
     pub fn toggle_value(&mut self, idx: usize) -> Result<()> {
         let mut pre_value = 0;
@@ -242,7 +248,8 @@ impl PageList {
         Ok(())
     }
 
-    /// ともにNoneでなければvalueも入れ替える。
+    /// If both are not None, replace the value as well.
+    /// 両方Noneでなければvalueも入れ替える。
     pub fn swap_with_value(&mut self, idx: usize, swap_direction: SwapDirection) -> Result<()> {
         if idx >= self.len() {
             bail!("failed to get {}-th element", idx);
@@ -276,7 +283,8 @@ impl PageList {
         Ok(())
     }
 
-    /// yamlにvalueを反映させる
+    /// Reflect the value in yaml.
+    /// yamlにvalueを反映させる。
     pub fn substitute_value(&mut self) {
         let key = self.key().clone();
         for page in self.iter_mut() {
@@ -284,7 +292,6 @@ impl PageList {
         }
     }
 
-    /// Frontmatterを書き換える
     pub fn overwrite_frontmatter(&mut self) -> Result<()> {
         for page in self.iter_mut() {
             page.overwrite_frontmatter()?;
