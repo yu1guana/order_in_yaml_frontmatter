@@ -6,13 +6,14 @@ This is useful when using static site generators such as Jekyll.
 ## Installation
 
 Compilation requires the `cargo` command, so if you do not have it, refer to [this page](https://www.rust-lang.org/ja/tools/install).
-If bash is running, execute the following command to install the software.
+
+If bash is running, execute the following command.
 
 ```sh
 ./install.sh
 ```
 
-The installation directory can be specified as an argument (if no argument is specified, the installation directory is ~/.cargo/bin).
+When using the above script, the installation directory can be specified as an argument (if no argument is specified, the installation directory is ~/.cargo/bin).
 
 If you do not have bash, execute the following command (please refer to [this site](https://doc.rust-lang.org/cargo/commands/cargo-install.html)).
 
@@ -27,7 +28,7 @@ Executing `make_completion_script.sh`, a completion script is created in [comple
 ## Usage
 
 ```
-Usage: order\_in\_yaml\_frontmatter [OPTIONS] --key <KEY>
+Usage: order_in_yaml_frontmatter [OPTIONS] --key <KEY>
 
 Options:
       --key <KEY>            Variables in frontmatters to assign order
